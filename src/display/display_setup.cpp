@@ -125,7 +125,7 @@ void lv_touch_read_cb(lv_indev_t *indev, lv_indev_data_t *data) {
 
 void display_init() {
     lcd.init();
-    lcd.setRotation(1); // Portrait 320x480 on WT32-SC01 Plus
+    lcd.setRotation(0); // Portrait 320x480 on WT32-SC01 Plus
     lcd.fillScreen(0x0000); // black (RGB565)
     lcd.setBrightness(180);
 
