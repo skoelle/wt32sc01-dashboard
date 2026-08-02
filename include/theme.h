@@ -17,7 +17,7 @@ constexpr int SCREEN_H = 480;
 //   TEXT      0xFFFF  white
 //   TEXT_DIM  0x8410  mid grey
 inline lv_color_t bg()        { return lv_color_hex(0x000000); }
-inline lv_color_t bgCard()    { return lv_color_hex(0x808080); }
+inline lv_color_t bgCard()    { return lv_color_hex(0x004040); }
 inline lv_color_t text()      { return lv_color_hex(0xFFFFFF); }
 inline lv_color_t textDim()   { return lv_color_hex(0x9A9A9E); }
 

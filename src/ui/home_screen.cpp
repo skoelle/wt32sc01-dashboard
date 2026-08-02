@@ -1,8 +1,7 @@
 #include "home_screen.h"
 #include "ui/widgets/tile_button.h"
 #include "icons/icons.h"
-#include "api/weather_api.h"
-#include "api/calendar_api.h"
+#include "data/data_manager.h"
 #include <theme.h>
 #include <text_utils.h>
 #include <date_utils.h>
@@ -13,20 +12,8 @@ namespace {
 // --- navigation callback target (set by main.cpp) ---
 ScreenId (*g_navigate)(ScreenId) = nullptr;
 
-// Forward declarations (definitions below).
-void updateWidgets();
-void doFetch();
-
 void on_calendar_tile(lv_event_t *) { if (g_navigate) g_navigate(ScreenId::CALENDAR_DETAIL); }
 void on_mvg_tile(lv_event_t *) { if (g_navigate) g_navigate(ScreenId::MVG); }
-
-// --- cached data + refresh timer (ported from old home_screen.cpp) ---
-WeatherData lastWeather;
-CalendarData lastCalendar;
-bool weatherOk = false;
-bool calendarOk = false;
-unsigned long lastFetchMs = 0;
-const unsigned long REFRESH_INTERVAL_MS = 10UL * 60UL * 1000UL;
 
 // --- tile handles (value labels, for updating without rebuild) ---
 TileButton weatherTile{};
@@ -43,45 +30,28 @@ void rebuildWeatherIcon(const String &symbol, const String &description) {
     lv_obj_align(weatherTile.icon, LV_ALIGN_CENTER, 0, -14);
 }
 
-void updateRainWarning() {
+void updateRainWarning(const WeatherData &w, bool ok) {
     if (rainWarningIcon) {
         lv_obj_del(rainWarningIcon);
         rainWarningIcon = nullptr;
     }
-    if (weatherOk && willRainSoon(lastWeather, 8)) {
+    if (ok && willRainSoon(w, 8)) {
         rainWarningIcon = Icons::createRainWarning(weatherTile.btn, 28);
         lv_obj_align(rainWarningIcon, LV_ALIGN_TOP_RIGHT, -4, 4);
     }
 }
 
-void doFetch() {
-    WeatherData w = fetchWeather();
-    weatherOk = w.valid;
-    if (w.valid) lastWeather = w;
-    CalendarData c = fetchCalendar();
-    calendarOk = c.valid;
-    if (c.valid) lastCalendar = c;
-    lastFetchMs = millis();
-}
-
 // Manual retry: tapping the weather tile when it is in error state triggers
-// a refresh instead of navigating away. Acts as the SPEC.md "retry per tap".
-void on_weather_tile(lv_event_t *e) {
-    if (!weatherOk) {
-        doFetch();
-        updateWidgets();
+// a background refresh instead of navigating away.
+void on_weather_tile(lv_event_t *) {
+    if (!dataManager_isWeatherOk()) {
+        dataManager_triggerRefresh();
         return;
     }
     if (g_navigate) g_navigate(ScreenId::WEATHER_DETAIL);
 }
 
-// --- formatting helpers (ported from old home_screen.cpp rendering) ---
-
-String weatherIconGlyph(const String &symbol) {
-    // Kept for fallback; real icons are drawn as canvas via rebuildWeatherIcon.
-    (void)symbol;
-    return LV_SYMBOL_IMAGE;
-}
+// --- formatting helpers ---
 
 String formatWeatherValue(const WeatherData &w) {
     if (!w.valid) return "Wetter n.a.";
@@ -96,9 +66,9 @@ String formatCalendarPreview(const CalendarData &c) {
     int shown = 0;
     for (const auto &ev : c.events) {
         if (shown >= 2) break;
-        if (shown > 0) s += "\n\n";
-        s += DateUtils::formatShortDE(ev.startAt, ev.allDay);
-        s += "\n" + sanitizeGermanText(ev.summary.substring(0, 22));
+        if (shown > 0) s += "\n";
+        s += sanitizeGermanText(ev.summary.substring(0, 22));
+        s += "\n" + DateUtils::formatShortDE(ev.startAt, ev.allDay);
         ++shown;
     }
     if (s.length() == 0) s = "Keine Termine";
@@ -107,12 +77,38 @@ String formatCalendarPreview(const CalendarData &c) {
 
 void updateWidgets() {
     if (!widgetsBuilt) return;
-    rebuildWeatherIcon(lastWeather.current.symbol, lastWeather.current.description);
-    updateRainWarning();
-    tile_button_set_value(weatherTile, formatWeatherValue(lastWeather).c_str());
+
+    WeatherData w;
+    CalendarData c;
+    dataManager_getWeather(w);
+    dataManager_getCalendar(c);
+    bool weatherOk = dataManager_isWeatherOk();
+    bool calendarOk = dataManager_isCalendarOk();
+    bool loading = dataManager_isLoading();
+
+    // Weather tile
+    if (weatherOk) {
+        rebuildWeatherIcon(w.current.symbol, w.current.description);
+        updateRainWarning(w, true);
+        tile_button_set_value(weatherTile, formatWeatherValue(w).c_str());
+    } else if (loading) {
+        tile_button_set_value(weatherTile, "Lade...");
+    } else {
+        tile_button_set_value(weatherTile, "Wetter n.a.");
+    }
     lv_obj_align(weatherTile.value, LV_ALIGN_CENTER, 0, 50);
-    tile_button_set_value(calendarTile, formatCalendarPreview(lastCalendar).c_str());
+
+    // Calendar tile
+    if (calendarOk) {
+        tile_button_set_value(calendarTile, formatCalendarPreview(c).c_str());
+    } else if (loading) {
+        tile_button_set_value(calendarTile, "Lade...");
+    } else {
+        tile_button_set_value(calendarTile, "Kalender n.a.");
+    }
     tile_button_set_icon(calendarTile, LV_SYMBOL_FILE);
+
+    // MVG tile
     tile_button_set_value(mvgTile, "Abfahrten");
 }
 
@@ -148,13 +144,14 @@ void homeScreen_create(Screen &s) {
 }
 
 void homeScreen_refresh(Screen &) {
-    doFetch();
     updateWidgets();
 }
 
 void homeScreen_tick(Screen &) {
-    if (lastFetchMs == 0 || millis() - lastFetchMs >= REFRESH_INTERVAL_MS) {
-        doFetch();
+    static uint32_t lastVersion = 0;
+    uint32_t v = dataManager_dataVersion();
+    if (v != lastVersion) {
+        lastVersion = v;
         updateWidgets();
     }
 }
@@ -166,4 +163,3 @@ Screen homeScreen_make() {
     s.tick_fn    = homeScreen_tick;
     return s;
 }
-

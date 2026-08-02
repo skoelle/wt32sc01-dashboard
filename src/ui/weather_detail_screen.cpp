@@ -1,6 +1,6 @@
 #include "weather_detail_screen.h"
 #include "ui/widgets/back_button.h"
-#include "api/weather_api.h"
+#include "data/data_manager.h"
 #include "icons/icons.h"
 #include <theme.h>
 #include <text_utils.h>
@@ -11,18 +11,22 @@ namespace {
 ScreenId (*g_navigate)(ScreenId) = nullptr;
 void on_back(lv_event_t *) { if (g_navigate) g_navigate(ScreenId::HOME); }
 
-WeatherData lastWeather;
-bool ok = false;
 lv_obj_t *list = nullptr;
 
 void buildList() {
     if (!list) return;
     lv_obj_clean(list);
 
+    WeatherData w;
+    dataManager_getWeather(w);
+    bool ok = dataManager_isWeatherOk();
+    bool loading = dataManager_isLoading();
+
     if (!ok) {
         lv_obj_t *lbl = lv_label_create(list);
-        lv_label_set_text(lbl, LV_SYMBOL_WARNING " Keine Verbindung");
-        lv_obj_set_style_text_color(lbl, Theme::accentError(), 0);
+        lv_label_set_text(lbl, loading ? LV_SYMBOL_REFRESH " Lade..."
+                                       : LV_SYMBOL_WARNING " Keine Verbindung");
+        lv_obj_set_style_text_color(lbl, loading ? Theme::textDim() : Theme::accentError(), 0);
         return;
     }
 
@@ -39,7 +43,7 @@ void buildList() {
     lv_obj_set_style_line_color(header_line, Theme::textDim(), 0);
     lv_obj_set_style_line_width(header_line, 1, 0);
 
-    for (const auto &fe : lastWeather.forecast) {
+    for (const auto &fe : w.forecast) {
         lv_obj_t *row = lv_obj_create(list);
         lv_obj_set_size(row, 280, 30);
         lv_obj_set_style_bg_opa(row, LV_OPA_TRANSP, 0);
@@ -105,13 +109,17 @@ void weatherDetailScreen_create(Screen &s) {
 }
 
 void weatherDetailScreen_refresh(Screen &) {
-    WeatherData w = fetchWeather();
-    ok = w.valid;
-    if (w.valid) lastWeather = w;
     buildList();
 }
 
-void weatherDetailScreen_tick(Screen &) {}
+void weatherDetailScreen_tick(Screen &) {
+    static uint32_t lastVersion = 0;
+    uint32_t v = dataManager_dataVersion();
+    if (v != lastVersion) {
+        lastVersion = v;
+        buildList();
+    }
+}
 
 Screen weatherDetailScreen_make() {
     Screen s;

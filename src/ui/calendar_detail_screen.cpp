@@ -1,6 +1,6 @@
 #include "calendar_detail_screen.h"
 #include "ui/widgets/back_button.h"
-#include "api/calendar_api.h"
+#include "data/data_manager.h"
 #include <theme.h>
 #include <text_utils.h>
 #include <date_utils.h>
@@ -11,24 +11,28 @@ namespace {
 ScreenId (*g_navigate)(ScreenId) = nullptr;
 void on_back(lv_event_t *) { if (g_navigate) g_navigate(ScreenId::HOME); }
 
-CalendarData lastCalendar;
-bool ok = false;
 lv_obj_t *list = nullptr;
 
 void buildList() {
     if (!list) return;
     lv_obj_clean(list);
 
+    CalendarData c;
+    dataManager_getCalendar(c);
+    bool ok = dataManager_isCalendarOk();
+    bool loading = dataManager_isLoading();
+
     if (!ok) {
         lv_obj_t *lbl = lv_label_create(list);
-        lv_label_set_text(lbl, LV_SYMBOL_WARNING " Keine Verbindung");
-        lv_obj_set_style_text_color(lbl, Theme::accentError(), 0);
+        lv_label_set_text(lbl, loading ? LV_SYMBOL_REFRESH " Lade..."
+                                       : LV_SYMBOL_WARNING " Keine Verbindung");
+        lv_obj_set_style_text_color(lbl, loading ? Theme::textDim() : Theme::accentError(), 0);
         return;
     }
 
     // Columns (content width = 280 - 2*6 pad = 268), side by side like a table:
     //   date   72 px left (dim grey)  | time 56 px centered (grey) | summary (white, wraps)
-    for (const auto &ev : lastCalendar.events) {
+    for (const auto &ev : c.events) {
         lv_obj_t *row = lv_obj_create(list);
         lv_obj_set_size(row, 280, LV_SIZE_CONTENT);
         lv_obj_set_style_bg_opa(row, LV_OPA_TRANSP, 0);
@@ -78,13 +82,17 @@ void calendarDetailScreen_create(Screen &s) {
 }
 
 void calendarDetailScreen_refresh(Screen &) {
-    CalendarData c = fetchCalendar();
-    ok = c.valid;
-    if (c.valid) lastCalendar = c;
     buildList();
 }
 
-void calendarDetailScreen_tick(Screen &) {}
+void calendarDetailScreen_tick(Screen &) {
+    static uint32_t lastVersion = 0;
+    uint32_t v = dataManager_dataVersion();
+    if (v != lastVersion) {
+        lastVersion = v;
+        buildList();
+    }
+}
 
 Screen calendarDetailScreen_make() {
     Screen s;
