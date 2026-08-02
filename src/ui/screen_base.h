@@ -1,6 +1,5 @@
 #pragma once
 #include <lvgl.h>
-#include <theme.h>
 
 enum class ScreenId {
     HOME,
@@ -15,11 +14,13 @@ enum class ScreenId {
 // every loop iteration for periodic refresh checks.
 struct Screen {
     lv_obj_t *root = nullptr;
-    lv_obj_t *loadingLabel = nullptr;
     bool created = false;
 
+    // Build the screen object tree (hidden). Called once at startup.
     void (*create_fn)(Screen &) = nullptr;
+    // Re-fetch data and update widgets.
     void (*refresh_fn)(Screen &) = nullptr;
+    // Per-loop tick: check refresh timers / inactivity.
     void (*tick_fn)(Screen &) = nullptr;
 
     void create() {
@@ -31,40 +32,14 @@ struct Screen {
         lv_obj_set_style_pad_all(root, 0, 0);
         lv_obj_clear_flag(root, LV_OBJ_FLAG_SCROLLABLE);
         create_fn(*this);
-
-        loadingLabel = lv_label_create(root);
-        lv_label_set_text(loadingLabel, LV_SYMBOL_REFRESH " Lädt...");
-        lv_obj_set_style_text_color(loadingLabel, Theme::text(), 0);
-        lv_obj_set_style_bg_color(loadingLabel, Theme::bg(), 0);
-        lv_obj_set_style_bg_opa(loadingLabel, LV_OPA_COVER, 0);
-        lv_obj_set_style_radius(loadingLabel, 8, 0);
-        lv_obj_set_style_pad_all(loadingLabel, 8, 0);
-        lv_obj_set_align(loadingLabel, LV_ALIGN_BOTTOM_RIGHT);
-        lv_obj_align(loadingLabel, LV_ALIGN_BOTTOM_RIGHT, -12, -12);
-        lv_obj_add_flag(loadingLabel, LV_OBJ_FLAG_HIDDEN);
-
         created = true;
-    }
-
-    void showLoading(bool visible) {
-        if (!loadingLabel) return;
-        if (visible) {
-            lv_obj_clear_flag(loadingLabel, LV_OBJ_FLAG_HIDDEN);
-            lv_obj_move_foreground(loadingLabel);
-        } else {
-            lv_obj_add_flag(loadingLabel, LV_OBJ_FLAG_HIDDEN);
-        }
     }
 
     void show() {
         if (!created) create();
         lv_screen_load(root);
         lv_indev_reset(NULL, root);
-        showLoading(true);
-        lv_timer_handler();
         refresh();
-        showLoading(false);
-        lv_timer_handler();
     }
 
     void hide() {}

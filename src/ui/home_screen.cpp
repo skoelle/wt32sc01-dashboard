@@ -152,14 +152,10 @@ void homeScreen_refresh(Screen &) {
     updateWidgets();
 }
 
-void homeScreen_tick(Screen &s) {
+void homeScreen_tick(Screen &) {
     if (lastFetchMs == 0 || millis() - lastFetchMs >= REFRESH_INTERVAL_MS) {
-        s.showLoading(true);
-        lv_timer_handler();
         doFetch();
         updateWidgets();
-        s.showLoading(false);
-        lv_timer_handler();
     }
 }
 
