@@ -1,10 +1,14 @@
-# M5Stack Core Dashboard
+# WT32-SC01 Plus Dashboard
 
-Wetter-, Kalender- und MVG-Abfahrten-Dashboard für den M5Stack Core (ESP32),
-gesteuert über die 3 eingebauten Buttons (A, B, C).
+Wetter-, Kalender- und MVG-Abfahrten-Dashboard für den WT32-SC01 Plus
+(ESP32-S3, 3.5" kapazitiver Touch-IPS-Display, 320x480 im Hochformat),
+gesteuert ausschließlich über Touch. Vollständig übernommene Backend-APIs
+und Fachlogik aus dem [M5Stack-Vorgängerprojekt](https://github.com/skoelle/m5stack-dashboard),
+Display- und Eingabeschicht neu aufgebaut mit LovyanGFX + LVGL 9.
 
-Details zu Funktionsumfang, API-Formaten und Design-Entscheidungen stehen in
-`SPEC-final.md` im Space. Umsetzungsschritte stehen in `PLAN.md` und `TODO.md`.
+Details zu Funktionsumfang, API-Formaten und Design-Entscheidungen
+stehen in [`SPEC.md`](SPEC.md). Die Migrationshistorie (Vorgänger-Spec,
+Migrationsplan, Task-Liste) liegt unter [`docs/`](docs/).
 
 ## Setup
 
@@ -13,14 +17,19 @@ Details zu Funktionsumfang, API-Formaten und Design-Entscheidungen stehen in
    pip install -U platformio
    ```
 
-2. WLAN-Zugangsdaten eintragen:
+2. WLAN-Zugangsdaten + API-URLs eintragen:
    ```
    cp include/secrets.h.example include/secrets.h
    ```
-   Dann in `include/secrets.h` `WIFI_SSID` und `WIFI_PASSWORD` anpassen.
-   Die drei API-URLs sind bereits vorbefüllt.
+   Dann in `include/secrets.h` `WIFI_SSID`, `WIFI_PASSWORD` und die drei
+   `*_API_URL`-Konstanten anpassen. `include/secrets.h` ist über
+   `.gitignore` vom Repo ausgeschlossen.
 
-3. Gerät per USB anschließen.
+3. (Optional) Pinbelegung verifizieren: `include/board_pins.h` enthält die
+   Referenz-Pinout für das WT32-SC01 Plus (ST7796 8-Bit-Parallel +
+   FT6336U I2C-Touch). Bei abweichender Board-Revision hier anpassen.
+
+4. Gerät per USB anschließen.
 
 ## Build & Flash
 
@@ -45,33 +54,48 @@ pio device monitor
 
 ## Bedienung
 
-| Button | Funktion |
+| Touch | Funktion |
 |---|---|
-| A | Wechselt zwischen Wetter-Detail und Kalender-Detail |
-| B | Zurück zur Hauptseite |
-| C | MVG-Abfahrtsseite |
+| Tap auf Wetter-Kachel (Home) | Wetter-Detailseite |
+| Tap auf Kalender-Kachel (Home) | Kalender-Detailseite |
+| Tap auf MVG-Kachel (Home) | MVG-Abfahrtsseite |
+| Tap auf Zurück-Button (unten links, Detailseiten) | Zurück zur Hauptseite |
+| Tap auf Wetter-Kachel im Fehlerzustand | Manueller Retry |
 
-Nach 5 Minuten ohne Tastendruck springt das Gerät automatisch zurück zur
-Hauptseite. Die Hauptseite aktualisiert sich alle 10 Minuten, die
+Nach 5 Minuten ohne Touch-Eingabe springt das Gerät automatisch zurück
+zur Hauptseite. Die Hauptseite aktualisiert sich alle 10 Minuten, die
 MVG-Seite jede Minute.
 
-## Icons
-
-Die Icons (Sonne, Wolke, Regen, U-/S-Bahn-Badges, Kalender, Fehler-Symbol)
-werden aktuell prozedural mit M5Stack-Grafikprimitiven gezeichnet
-(`src/icons/icons.h`), um den Flash-Speicher zu schonen. Für echte
-Pixel-Art-Bitmaps können die Funktionskörper später durch
-`M5.Lcd.drawBitmap(...)`-Aufrufe mit RGB565-Arrays ersetzt werden.
-
-## Git
-
-Dieses Projekt ist bewusst noch nicht als Git-Repository initialisiert.
-Sobald gewünscht:
+## Projektstruktur
 
 ```
-git init
-git add .
-git commit -m "Initial M5Stack dashboard"
+/
+├── platformio.ini              esp32-s3, LovyanGFX + LVGL9
+├── lv_conf.h                   LVGL-Konfiguration
+├── include/
+│   ├── board_pins.h            WT32-SC01-Plus-Pinout
+│   ├── secrets.h.example       Platzhalter für WLAN/API-URLs
+│   ├── theme.h                 Dark-Mode-Farbschema (LVGL)
+│   ├── text_utils.h            UTF-8->ASCII-Transliteration
+│   └── date_utils.h            Datumsformatierung (kein NTP)
+├── src/
+│   ├── main.cpp                Screen-Controller + Inaktivitäts-Timer
+│   ├── display/                LovyanGFX-Setup + LVGL-Anbindung
+│   ├── ui/                     Screens + wiederverwendbare Widgets
+│   │   ├── screen_base.h       Screen-Lifecycle (create/show/refresh/tick)
+│   │   ├── home_screen.*       3 Touch-Kacheln
+│   │   ├── weather_detail_screen.*
+│   │   ├── calendar_detail_screen.*
+│   │   ├── mvg_screen.*
+│   │   └── widgets/            tile_button, back_button
+│   ├── api/                    HTTP-Clients (1:1 aus m5stack-dashboard)
+│   └── icons/                  prozedurale LVGL-Canvas-Icons
+├── scripts/
+│   ├── deploy.sh               Build + Flash
+│   └── build.sh                Nur Build
+└── docs/                       Migrationshistorie (SPEC-old, PLAN, TODO)
 ```
 
-`include/secrets.h` ist bereits in `.gitignore` ausgeschlossen.
+## Referenzprojekt
+
+Vorgängerprojekt mit M5Stack Core: <https://github.com/skoelle/m5stack-dashboard>
