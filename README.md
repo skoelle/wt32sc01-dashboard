@@ -33,8 +33,14 @@ Migrationsplan, Task-Liste) liegt unter [`docs/`](docs/).
 
 ## Build & Flash
 
+**Linux/macOS:**
 ```
 ./scripts/deploy.sh
+```
+
+**Windows:**
+```
+scripts\deploy.cmd
 ```
 
 Falls mehrere serielle Geräte angeschlossen sind und die automatische
@@ -42,9 +48,16 @@ Port-Erkennung fehlschlägt, kann der Port explizit übergeben werden:
 
 ```
 ./scripts/deploy.sh /dev/ttyUSB0
+scripts\deploy.cmd COM3
 ```
 
 Das Skript baut nur und flasht, es öffnet keinen seriellen Monitor.
+
+Nur Build (ohne Flash):
+```
+./scripts/build.sh
+scripts\build.cmd
+```
 
 Falls du den Monitor separat sehen willst:
 
@@ -65,6 +78,14 @@ pio device monitor
 Nach 5 Minuten ohne Touch-Eingabe springt das Gerät automatisch zurück
 zur Hauptseite. Die Hauptseite aktualisiert sich alle 10 Minuten, die
 MVG-Seite jede Minute.
+
+## Fehlerbehandlung
+
+Wenn eine API nicht erreichbar ist, wird auf der betroffenen Kachel bzw. dem Screen eine Fehleranzeige gezeigt (Text + ggf. Retry-Icon). Es wird kein "letzter bekannter Wert" angezeigt.
+
+**Retry:**
+- Automatisch beim nächsten regulären Refresh-Intervall (10 Min. bzw. 1 Min.)
+- Manuell durch erneutes Antippen der Kachel im Fehlerzustand
 
 ## Projektstruktur
 
@@ -91,10 +112,20 @@ MVG-Seite jede Minute.
 │   ├── api/                    HTTP-Clients (1:1 aus m5stack-dashboard)
 │   └── icons/                  prozedurale LVGL-Canvas-Icons
 ├── scripts/
-│   ├── deploy.sh               Build + Flash
-│   └── build.sh                Nur Build
+│   ├── deploy.sh / deploy.cmd  Build + Flash
+│   └── build.sh / build.cmd    Nur Build
 └── docs/                       Migrationshistorie (SPEC-old, PLAN, TODO)
 ```
+
+## Utilities
+
+- **`text_utils.h`** – Transliteriert deutsche Umlaute und Sonderzeichen von UTF-8 nach ASCII, damit LVGL-Labels Sonderzeichen korrekt darstellen können.
+- **`date_utils.h`** – Datumsformatierung ohne NTP-Abhängigkeit. Formatiert Zeitstempel aus den API-Responses in lesbare deutsche Strings.
+- **`theme.h`** – Dark-Mode-Farbschema für LVGL: sehr dunkler Hintergrund (`#000000`/`#0B0B0D`), heller Text, dezente Akzentfarben pro Kachel.
+
+## Icons
+
+Icons werden prozedural als LVGL-Canvas-Objekte gezeichnet (keine externen Bitmap-Dateien). Das `src/icons/`-Verzeichnis enthält Funktionen, die Icon-Shapes direkt im Code erzeugen – u.a. Wetter-Icons (Sonne, Wolken, Regen), U-Bahn/S-Bahn-Symbole, Kalender-Icon, Zurück-Pfeil und Retry-Icon. Vorteil: Kein Nachladen von SD-Karte, keine .bin-Abhängigkeit, Icon-Pixel sind im Flash gespeichert.
 
 ## Referenzprojekt
 
