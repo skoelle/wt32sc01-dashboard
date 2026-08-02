@@ -63,4 +63,23 @@ inline String formatShortDE(const String &iso, bool allDay) {
     return out;
 }
 
+// Date-only column text, e.g. "Mo 3.8." (used in the calendar detail table).
+inline String formatDateDE(const String &iso) {
+    ParsedDateTime p = parseIso(iso);
+    if (!p.valid) return iso;
+    int wd = computeWeekdayMonBased(p.year, p.month, p.day);
+    return String(weekdayShortDE(wd)) + " " + String(p.day) + "." + String(p.month) + ".";
+}
+
+// Time-only column text, e.g. "14:00". Returns "-" for all-day events so the
+// table row keeps a consistent column structure.
+inline String formatTimeDE(const String &iso, bool allDay) {
+    if (allDay) return "-";
+    ParsedDateTime p = parseIso(iso);
+    if (!p.valid) return "";
+    char buf[8];
+    snprintf(buf, sizeof(buf), "%02d:%02d", p.hour, p.minute);
+    return String(buf);
+}
+
 } // namespace DateUtils

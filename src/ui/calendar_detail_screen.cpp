@@ -26,23 +26,37 @@ void buildList() {
         return;
     }
 
+    // Columns (content width = 280 - 2*6 pad = 268):
+    //   date   88 px left   | time 56 px centered @94 | summary 112 px @156
     for (const auto &ev : lastCalendar.events) {
         lv_obj_t *row = lv_obj_create(list);
         lv_obj_set_size(row, 280, LV_SIZE_CONTENT);
         lv_obj_set_style_bg_opa(row, LV_OPA_TRANSP, 0);
-        lv_obj_set_style_border_width(row, 0, 0);
+        lv_obj_set_style_border_width(row, 1, LV_PART_MAIN);
+        lv_obj_set_style_border_side(row, LV_BORDER_SIDE_BOTTOM, 0);
+        lv_obj_set_style_border_color(row, Theme::bgCard(), 0);
         lv_obj_set_style_pad_all(row, 6, 0);
         lv_obj_clear_flag(row, LV_OBJ_FLAG_SCROLLABLE);
+
+        lv_obj_t *date = lv_label_create(row);
+        lv_label_set_text(date, DateUtils::formatDateDE(ev.startAt).c_str());
+        lv_obj_set_style_text_color(date, Theme::textDim(), 0);
+        lv_obj_set_width(date, 88);
+        lv_obj_align(date, LV_ALIGN_TOP_LEFT, 0, 0);
+
+        lv_obj_t *time = lv_label_create(row);
+        lv_label_set_text(time, DateUtils::formatTimeDE(ev.startAt, ev.allDay).c_str());
+        lv_obj_set_style_text_color(time, Theme::accentCalendar(), 0);
+        lv_obj_set_style_text_align(time, LV_TEXT_ALIGN_CENTER, 0);
+        lv_obj_set_width(time, 56);
+        lv_obj_align(time, LV_ALIGN_TOP_LEFT, 94, 0);
 
         lv_obj_t *sum = lv_label_create(row);
         lv_label_set_text(sum, sanitizeGermanText(ev.summary.substring(0, 30)).c_str());
         lv_obj_set_style_text_color(sum, Theme::text(), 0);
-        lv_obj_align(sum, LV_ALIGN_TOP_LEFT, 0, 0);
-
-        lv_obj_t *when = lv_label_create(row);
-        lv_label_set_text(when, DateUtils::formatShortDE(ev.startAt, ev.allDay).c_str());
-        lv_obj_set_style_text_color(when, Theme::accentCalendar(), 0);
-        lv_obj_align(when, LV_ALIGN_TOP_LEFT, 0, 20);
+        lv_label_set_long_mode(sum, LV_TEXT_LONG_DOT);
+        lv_obj_set_width(sum, 112);
+        lv_obj_align(sum, LV_ALIGN_TOP_LEFT, 156, 0);
     }
 }
 
