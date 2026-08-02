@@ -22,22 +22,12 @@ lv_color_t typeColor(const String &type) {
     return Theme::textDim();
 }
 
-void styleRow(lv_obj_t *row) {
-    lv_obj_remove_style_all(row);
-    lv_obj_set_size(row, 280, LV_SIZE_CONTENT);
-    lv_obj_set_style_bg_opa(row, LV_OPA_TRANSP, 0);
-    lv_obj_set_style_border_width(row, 0, 0);
-    lv_obj_set_style_pad_all(row, 6, 0);
-    lv_obj_clear_flag(row, LV_OBJ_FLAG_SCROLLABLE);
-}
-
 void buildList() {
     if (!list) return;
     lv_obj_clean(list);
 
     if (!ok) {
         lv_obj_t *lbl = lv_label_create(list);
-        lv_obj_remove_style_all(lbl);
         lv_label_set_text(lbl, LV_SYMBOL_WARNING " Keine Verbindung");
         lv_obj_set_style_text_color(lbl, Theme::accentError(), 0);
         return;
@@ -45,20 +35,21 @@ void buildList() {
 
     for (const auto &dep : lastData.departures) {
         lv_obj_t *row = lv_obj_create(list);
-        styleRow(row);
+        lv_obj_set_size(row, 280, LV_SIZE_CONTENT);
+        lv_obj_set_style_bg_opa(row, LV_OPA_TRANSP, 0);
+        lv_obj_set_style_border_width(row, 0, 0);
+        lv_obj_set_style_pad_all(row, 6, 0);
+        lv_obj_clear_flag(row, LV_OBJ_FLAG_SCROLLABLE);
 
         String badge = String(dep.icon) + " " + dep.line;
         lv_obj_t *ln = lv_label_create(row);
-        lv_obj_remove_style_all(ln);
         lv_label_set_text(ln, badge.c_str());
         lv_obj_set_style_text_color(ln, typeColor(dep.type), 0);
         lv_obj_align(ln, LV_ALIGN_TOP_LEFT, 0, 0);
 
         String dest = sanitizeGermanText(dep.destination.substring(0, 20));
         lv_obj_t *d = lv_label_create(row);
-        lv_obj_remove_style_all(d);
         lv_label_set_text(d, dest.c_str());
-        lv_obj_set_style_text_color(d, Theme::text(), 0);
         lv_obj_align(d, LV_ALIGN_TOP_LEFT, 0, 18);
 
         String right;
@@ -69,7 +60,6 @@ void buildList() {
             if (dep.delayMin > 0) right += " +" + String(dep.delayMin);
         }
         lv_obj_t *t = lv_label_create(row);
-        lv_obj_remove_style_all(t);
         lv_label_set_text(t, right.c_str());
         lv_obj_set_style_text_color(t,
             dep.cancelled ? Theme::accentError() : Theme::text(), 0);
@@ -90,13 +80,11 @@ void mvgScreen_setNavigator(ScreenId (*nav)(ScreenId)) { g_navigate = nav; }
 
 void mvgScreen_create(Screen &s) {
     list = lv_obj_create(s.root);
-    lv_obj_remove_style_all(list);
     lv_obj_set_pos(list, 0, 0);
     lv_obj_set_size(list, 320, 480 - 80);
     lv_obj_set_style_bg_color(list, Theme::bg(), 0);
     lv_obj_set_style_bg_opa(list, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(list, 0, 0);
-    lv_obj_set_style_pad_all(list, 0, 0);
     lv_obj_set_flex_flow(list, LV_FLEX_FLOW_COLUMN);
     lv_obj_add_flag(list, LV_OBJ_FLAG_SCROLLABLE);
     back_button_create(s.root, on_back, nullptr);

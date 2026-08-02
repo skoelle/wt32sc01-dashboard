@@ -141,6 +141,14 @@ void display_init() {
                            LV_DISPLAY_RENDER_MODE_PARTIAL);
     lv_display_set_flush_cb(lv_display_gfx, lv_display_flush_cb);
 
+    lv_theme_t *th = lv_theme_default_init(
+        lv_display_gfx,
+        lv_palette_main(LV_PALETTE_BLUE),
+        lv_palette_main(LV_PALETTE_CYAN),
+        true,
+        LV_FONT_DEFAULT);
+    lv_display_set_theme(lv_display_gfx, th);
+
     lv_indev_t *indev = lv_indev_create();
     lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
     lv_indev_set_read_cb(indev, lv_touch_read_cb);
