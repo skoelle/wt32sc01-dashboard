@@ -20,11 +20,11 @@ constexpr int LCD_RD = -1;   // not wired
 constexpr int LCD_DC = 0;    // RS/DC
 constexpr int LCD_CS = -1;   // not wired
 constexpr int LCD_RST = 4;
-constexpr int LCD_BACKLIGHT = 2;
+constexpr int LCD_BACKLIGHT = 45;
 
 // --- FT6336U capacitive touch (I2C) ---
-constexpr int TOUCH_SDA = 14;
-constexpr int TOUCH_SCL = 12;
-constexpr int TOUCH_INT = 13;
+constexpr int TOUCH_SDA = 6;
+constexpr int TOUCH_SCL = 5;
+constexpr int TOUCH_INT = 7;
 
 } // namespace BoardPins
