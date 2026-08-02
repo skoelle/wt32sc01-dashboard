@@ -74,7 +74,7 @@ void buildList() {
         String desc = sanitizeGermanText(fe.description.substring(0, 25));
         lv_obj_t *desc_label = lv_label_create(row);
         lv_label_set_text(desc_label, desc.c_str());
-        lv_obj_set_style_text_color(desc_label, fe.precipitationType == "rain" ? Theme::accentRain() : Theme::textDim(), 0);
+        lv_obj_set_style_text_color(desc_label, Theme::textDim(), 0);
         lv_obj_set_style_text_font(desc_label, &lv_font_montserrat_20, 0);
         lv_obj_align(desc_label, LV_ALIGN_TOP_LEFT, 0, 28);
     }
