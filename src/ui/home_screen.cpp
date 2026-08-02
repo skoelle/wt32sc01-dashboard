@@ -66,9 +66,9 @@ String formatCalendarPreview(const CalendarData &c) {
     int shown = 0;
     for (const auto &ev : c.events) {
         if (shown >= 2) break;
-        if (shown > 0) s += "\n";
-        s += sanitizeGermanText(ev.summary.substring(0, 22));
-        s += "\n" + DateUtils::formatShortDE(ev.startAt, ev.allDay);
+        if (shown > 0) s += "\n--------------------\n";
+        s += DateUtils::formatShortDE(ev.startAt, ev.allDay);
+        s += "\n" + sanitizeGermanText(ev.summary.substring(0, 22));
         ++shown;
     }
     if (s.length() == 0) s = "Keine Termine";
