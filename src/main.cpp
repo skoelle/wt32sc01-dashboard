@@ -76,8 +76,11 @@ void loop() {
         screens[(int)current].tick();
 
         // Inactivity: return to home after 5 minutes without input.
+        // Use millis() directly — lastInteractionMs may have been updated
+        // during display_loop() inside this same iteration; using the stale
+        // `now` from loop start would underflow and trigger immediately.
         if (current != ScreenId::HOME &&
-            now - lastInteractionMs >= IDLE_TIMEOUT_MS) {
+            millis() - lastInteractionMs >= IDLE_TIMEOUT_MS) {
             navigate(ScreenId::HOME);
         }
     }
