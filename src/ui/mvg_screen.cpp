@@ -39,7 +39,7 @@ void buildList() {
         lv_obj_set_style_bg_opa(row, LV_OPA_TRANSP, 0);
         lv_obj_set_style_border_width(row, 1, 0);
         lv_obj_set_style_border_side(row, LV_BORDER_SIDE_BOTTOM, 0);
-        lv_obj_set_style_border_color(row, lv_color_hex(0x555555), 0);
+        lv_obj_set_style_border_color(row, Theme::bgCard(), 0);
         lv_obj_set_style_pad_all(row, 8, 0);
         lv_obj_set_style_pad_bottom(row, 12, 0);
         lv_obj_clear_flag(row, LV_OBJ_FLAG_SCROLLABLE);
