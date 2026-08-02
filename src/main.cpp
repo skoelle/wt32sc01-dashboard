@@ -4,6 +4,7 @@
 #include <secrets.h>
 #include <theme.h>
 #include "display/display_setup.h"
+#include "data/data_manager.h"
 #include "ui/screen_base.h"
 #include "ui/home_screen.h"
 #include "ui/weather_detail_screen.h"
@@ -53,6 +54,9 @@ void setup() {
     display_init();
     connectWifi();
 
+    // Start background data fetcher (weather + calendar every 10 min).
+    dataManager_begin();
+
     // Build all four screens and wire navigation callbacks.
     screens[(int)ScreenId::HOME]            = homeScreen_make();
     screens[(int)ScreenId::WEATHER_DETAIL]  = weatherDetailScreen_make();
@@ -73,6 +77,7 @@ void loop() {
     if (now - lastTickMs >= 5) {
         lastTickMs = now;
         display_loop();
+        dataManager_tick();
         screens[(int)current].tick();
 
         // Inactivity: return to home after 5 minutes without input.
