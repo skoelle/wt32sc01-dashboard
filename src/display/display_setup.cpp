@@ -143,10 +143,11 @@ void display_init() {
 
     lv_theme_t *th = lv_theme_default_init(
         lv_display_gfx,
-        lv_palette_main(LV_PALETTE_BLUE),
-        lv_palette_main(LV_PALETTE_CYAN),
+        Theme::bg(),
+        Theme::text(),
         true,
         LV_FONT_DEFAULT);
+    lv_theme_default_set_dark(1);
     lv_display_set_theme(lv_display_gfx, th);
 
     lv_indev_t *indev = lv_indev_create();
