@@ -4,6 +4,9 @@
 #include <secrets.h>
 #include <theme.h>
 #include "display/display_setup.h"
+#include "api/weather_api.h"
+#include "api/calendar_api.h"
+#include "api/departures_api.h"
 
 namespace {
 
@@ -25,6 +28,44 @@ void connectWifi() {
     } else {
         Serial.println("WLAN fehlgeschlagen");
     }
+}
+
+// Phase 2 verification: fetch all three APIs once at boot and dump parsed
+// fields to Serial so JSON parsing can be verified independently of the UI.
+void verifyApisViaSerial() {
+    Serial.println("\n=== Wetter ===");
+    WeatherData w = fetchWeather();
+    Serial.printf("valid=%d temp=%d symbol=%s desc=%s forecast=%u\n",
+                  w.valid, w.current.temperature,
+                  w.current.symbol.c_str(), w.current.description.c_str(),
+                  w.forecast.size());
+    for (size_t i = 0; i < w.forecast.size() && i < 3; ++i) {
+        const auto &f = w.forecast[i];
+        Serial.printf("  [%u] %s %dC %s precip=%.2f/%s\n", i, f.time.c_str(),
+                      f.temperature, f.description.c_str(),
+                      f.precipitationProbability, f.precipitationType.c_str());
+    }
+
+    Serial.println("\n=== Kalender ===");
+    CalendarData c = fetchCalendar();
+    Serial.printf("valid=%d events=%u\n", c.valid, c.events.size());
+    for (size_t i = 0; i < c.events.size() && i < 3; ++i) {
+        const auto &e = c.events[i];
+        Serial.printf("  [%u] %s | %s all_day=%d\n", i, e.summary.c_str(),
+                      e.startAt.c_str(), e.allDay);
+    }
+
+    Serial.println("\n=== MVG ===");
+    DeparturesData d = fetchDepartures();
+    Serial.printf("valid=%d departures=%u\n", d.valid, d.departures.size());
+    for (size_t i = 0; i < d.departures.size() && i < 3; ++i) {
+        const auto &dep = d.departures[i];
+        Serial.printf("  [%u] %s %s -> %s %s delay=%d cancel=%d\n", i,
+                      dep.type.c_str(), dep.line.c_str(),
+                      dep.destination.c_str(), dep.timeStr.c_str(),
+                      dep.delayMin, dep.cancelled);
+    }
+    Serial.println("=== API verification done ===\n");
 }
 
 void btn_event_cb(lv_event_t *e) {
@@ -56,6 +97,7 @@ void setup() {
     Serial.println("WT32-SC01 Plus booting...");
     display_init();
     connectWifi();
+    verifyApisViaSerial();
     buildTestScreen();
     Serial.println("Setup done.");
 }
