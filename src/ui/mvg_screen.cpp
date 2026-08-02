@@ -65,7 +65,7 @@ void buildList() {
             lv_obj_t *t = lv_label_create(row);
             lv_label_set_text(t, dep.timeStr.c_str());
             lv_obj_set_style_text_color(t, Theme::text(), 0);
-            lv_obj_align(t, LV_ALIGN_TOP_RIGHT, 0, 0);
+            lv_obj_align(t, LV_ALIGN_TOP_RIGHT, -36, 0);
 
             if (dep.delayMin > 0) {
                 lv_obj_t *delay = lv_label_create(row);
