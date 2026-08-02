@@ -48,3 +48,9 @@ void tile_button_set_value(TileButton &t, const char *text) {
 void tile_button_set_icon(TileButton &t, const char *text) {
     if (t.icon) lv_label_set_text(t.icon, text);
 }
+
+void tile_button_set_icon_obj(TileButton &t, lv_obj_t *icon_obj) {
+    if (t.icon) lv_obj_del(t.icon);
+    t.icon = icon_obj;
+    if (t.icon) lv_obj_align(t.icon, LV_ALIGN_TOP_RIGHT, 0, 0);
+}

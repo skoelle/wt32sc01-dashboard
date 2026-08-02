@@ -1,5 +1,6 @@
 #include "home_screen.h"
 #include "ui/widgets/tile_button.h"
+#include "icons/icons.h"
 #include "api/weather_api.h"
 #include "api/calendar_api.h"
 #include <theme.h>
@@ -12,7 +13,10 @@ namespace {
 // --- navigation callback target (set by main.cpp) ---
 ScreenId (*g_navigate)(ScreenId) = nullptr;
 
-void on_weather_tile(lv_event_t *) { if (g_navigate) g_navigate(ScreenId::WEATHER_DETAIL); }
+// Forward declarations (definitions below).
+void updateWidgets();
+void doFetch();
+
 void on_calendar_tile(lv_event_t *) { if (g_navigate) g_navigate(ScreenId::CALENDAR_DETAIL); }
 void on_mvg_tile(lv_event_t *) { if (g_navigate) g_navigate(ScreenId::MVG); }
 
@@ -30,6 +34,13 @@ TileButton calendarTile{};
 TileButton mvgTile{};
 bool widgetsBuilt = false;
 
+// Rebuild the weather canvas icon (deleted + recreated on each refresh
+// because the symbol may change).
+void rebuildWeatherIcon(const String &symbol, const String &description) {
+    lv_obj_t *ic = Icons::createWeatherIcon(weatherTile.btn, symbol, description, 48);
+    tile_button_set_icon_obj(weatherTile, ic);
+}
+
 void doFetch() {
     WeatherData w = fetchWeather();
     weatherOk = w.valid;
@@ -40,13 +51,23 @@ void doFetch() {
     lastFetchMs = millis();
 }
 
+// Manual retry: tapping the weather tile when it is in error state triggers
+// a refresh instead of navigating away. Acts as the SPEC.md "retry per tap".
+void on_weather_tile(lv_event_t *e) {
+    if (!weatherOk) {
+        doFetch();
+        updateWidgets();
+        return;
+    }
+    if (g_navigate) g_navigate(ScreenId::WEATHER_DETAIL);
+}
+
 // --- formatting helpers (ported from old home_screen.cpp rendering) ---
 
 String weatherIconGlyph(const String &symbol) {
-    // Phase 4 placeholder: map symbol condition to a unicode glyph until
-    // bitmap icons land in Phase 6. m=night, condition char = symbol[1].
+    // Kept for fallback; real icons are drawn as canvas via rebuildWeatherIcon.
     (void)symbol;
-    return LV_SYMBOL_IMAGE; // cloud/weather placeholder; bitmaps come in Phase 6
+    return LV_SYMBOL_IMAGE;
 }
 
 String formatWeatherValue(const WeatherData &w) {
@@ -75,7 +96,7 @@ String formatCalendarPreview(const CalendarData &c) {
 void updateWidgets() {
     if (!widgetsBuilt) return;
     tile_button_set_value(weatherTile, formatWeatherValue(lastWeather).c_str());
-    tile_button_set_icon(weatherTile, weatherIconGlyph(lastWeather.current.symbol).c_str());
+    rebuildWeatherIcon(lastWeather.current.symbol, lastWeather.current.description);
     tile_button_set_value(calendarTile, formatCalendarPreview(lastCalendar).c_str());
     tile_button_set_icon(calendarTile, LV_SYMBOL_FILE);
     tile_button_set_value(mvgTile, "");

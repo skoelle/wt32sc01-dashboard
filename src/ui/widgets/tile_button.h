@@ -24,3 +24,7 @@ void tile_button_set_value(TileButton &t, const char *text);
 // Set the icon text (single glyph/symbol). Icons are rendered as text labels
 // using LVGL's built-in font until bitmap icons land in Phase 6.
 void tile_button_set_icon(TileButton &t, const char *text);
+
+// Replace the text icon with an already-created canvas object (the caller
+// creates the canvas as a child of t.btn). Useful for bitmap/procedural icons.
+void tile_button_set_icon_obj(TileButton &t, lv_obj_t *icon_obj);
