@@ -6,6 +6,11 @@ gesteuert ausschließlich über Touch. Vollständig übernommene Backend-APIs
 und Fachlogik aus dem [M5Stack-Vorgängerprojekt](https://github.com/skoelle/m5stack-dashboard),
 Display- und Eingabeschicht neu aufgebaut mit LovyanGFX + LVGL 9.
 
+![Hauptbildschirm](docs/screenshot1.jpg)
+![Abfahrten](docs/screenshot4.jpg)
+![Wetter](docs/screenshot2.jpg)
+![Termine](docs/screenshot3.jpg)
+
 Details zu Funktionsumfang, API-Formaten und Design-Entscheidungen
 stehen in [`SPEC.md`](SPEC.md). Die Migrationshistorie (Vorgänger-Spec,
 Migrationsplan, Task-Liste) liegt unter [`docs/`](docs/).
