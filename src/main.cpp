@@ -4,13 +4,27 @@
 #include <secrets.h>
 #include <theme.h>
 #include "display/display_setup.h"
-#include "api/weather_api.h"
-#include "api/calendar_api.h"
-#include "api/departures_api.h"
+#include "ui/screen_base.h"
+#include "ui/home_screen.h"
+#include "ui/weather_detail_screen.h"
+#include "ui/calendar_detail_screen.h"
+#include "ui/mvg_screen.h"
 
 namespace {
 
 unsigned long lastTickMs = 0;
+unsigned long lastInteractionMs = 0;
+const unsigned long IDLE_TIMEOUT_MS = 5UL * 60UL * 1000UL;
+
+Screen screens[4];
+ScreenId current = ScreenId::HOME;
+
+ScreenId navigate(ScreenId target) {
+    lastInteractionMs = millis();
+    current = target;
+    screens[(int)target].show();
+    return target;
+}
 
 void connectWifi() {
     Serial.println("Verbinde mit WLAN...");
@@ -30,65 +44,6 @@ void connectWifi() {
     }
 }
 
-// Phase 2 verification: fetch all three APIs once at boot and dump parsed
-// fields to Serial so JSON parsing can be verified independently of the UI.
-void verifyApisViaSerial() {
-    Serial.println("\n=== Wetter ===");
-    WeatherData w = fetchWeather();
-    Serial.printf("valid=%d temp=%d symbol=%s desc=%s forecast=%u\n",
-                  w.valid, w.current.temperature,
-                  w.current.symbol.c_str(), w.current.description.c_str(),
-                  w.forecast.size());
-    for (size_t i = 0; i < w.forecast.size() && i < 3; ++i) {
-        const auto &f = w.forecast[i];
-        Serial.printf("  [%u] %s %dC %s precip=%.2f/%s\n", i, f.time.c_str(),
-                      f.temperature, f.description.c_str(),
-                      f.precipitationProbability, f.precipitationType.c_str());
-    }
-
-    Serial.println("\n=== Kalender ===");
-    CalendarData c = fetchCalendar();
-    Serial.printf("valid=%d events=%u\n", c.valid, c.events.size());
-    for (size_t i = 0; i < c.events.size() && i < 3; ++i) {
-        const auto &e = c.events[i];
-        Serial.printf("  [%u] %s | %s all_day=%d\n", i, e.summary.c_str(),
-                      e.startAt.c_str(), e.allDay);
-    }
-
-    Serial.println("\n=== MVG ===");
-    DeparturesData d = fetchDepartures();
-    Serial.printf("valid=%d departures=%u\n", d.valid, d.departures.size());
-    for (size_t i = 0; i < d.departures.size() && i < 3; ++i) {
-        const auto &dep = d.departures[i];
-        Serial.printf("  [%u] %s %s -> %s %s delay=%d cancel=%d\n", i,
-                      dep.type.c_str(), dep.line.c_str(),
-                      dep.destination.c_str(), dep.timeStr.c_str(),
-                      dep.delayMin, dep.cancelled);
-    }
-    Serial.println("=== API verification done ===\n");
-}
-
-void btn_event_cb(lv_event_t *e) {
-    lv_obj_t *label = (lv_obj_t *)lv_event_get_user_data(e);
-    static int n = 0;
-    lv_label_set_text_fmt(label, "Taps: %d", ++n);
-}
-
-void buildTestScreen() {
-    lv_obj_t *scr = lv_screen_active();
-    lv_obj_set_style_bg_color(scr, Theme::bg(), 0);
-
-    lv_obj_t *btn = lv_button_create(scr);
-    lv_obj_set_size(btn, 200, 80);
-    lv_obj_center(btn);
-    lv_obj_set_style_bg_color(btn, Theme::accentWeather(), 0);
-
-    lv_obj_t *label = lv_label_create(btn);
-    lv_label_set_text(label, "Taps: 0");
-    lv_obj_center(label);
-    lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_CLICKED, label);
-}
-
 } // namespace
 
 void setup() {
@@ -97,8 +52,19 @@ void setup() {
     Serial.println("WT32-SC01 Plus booting...");
     display_init();
     connectWifi();
-    verifyApisViaSerial();
-    buildTestScreen();
+
+    // Build all four screens and wire navigation callbacks.
+    screens[(int)ScreenId::HOME]            = homeScreen_make();
+    screens[(int)ScreenId::WEATHER_DETAIL]  = weatherDetailScreen_make();
+    screens[(int)ScreenId::CALENDAR_DETAIL] = calendarDetailScreen_make();
+    screens[(int)ScreenId::MVG]             = mvgScreen_make();
+    homeScreen_setNavigator(navigate);
+    weatherDetailScreen_setNavigator(navigate);
+    calendarDetailScreen_setNavigator(navigate);
+    mvgScreen_setNavigator(navigate);
+
+    lastInteractionMs = millis();
+    navigate(ScreenId::HOME);
     Serial.println("Setup done.");
 }
 
@@ -107,5 +73,12 @@ void loop() {
     if (now - lastTickMs >= 5) {
         lastTickMs = now;
         display_loop();
+        screens[(int)current].tick();
+
+        // Inactivity: return to home after 5 minutes without input.
+        if (current != ScreenId::HOME &&
+            now - lastInteractionMs >= IDLE_TIMEOUT_MS) {
+            navigate(ScreenId::HOME);
+        }
     }
 }
