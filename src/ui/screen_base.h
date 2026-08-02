@@ -38,6 +38,7 @@ struct Screen {
     void show() {
         if (!created) create();
         lv_screen_load(root);
+        lv_indev_reset(NULL, root);
         refresh();
     }
 

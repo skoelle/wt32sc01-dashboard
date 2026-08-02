@@ -33,12 +33,25 @@ TileButton weatherTile{};
 TileButton calendarTile{};
 TileButton mvgTile{};
 bool widgetsBuilt = false;
+lv_obj_t *rainWarningIcon = nullptr;
 
 // Rebuild the weather canvas icon (deleted + recreated on each refresh
 // because the symbol may change).
 void rebuildWeatherIcon(const String &symbol, const String &description) {
-    lv_obj_t *ic = Icons::createWeatherIcon(weatherTile.btn, symbol, description, 48);
+    lv_obj_t *ic = Icons::createWeatherIcon(weatherTile.btn, symbol, description, 72);
     tile_button_set_icon_obj(weatherTile, ic);
+    lv_obj_align(weatherTile.icon, LV_ALIGN_CENTER, 0, -14);
+}
+
+void updateRainWarning() {
+    if (rainWarningIcon) {
+        lv_obj_del(rainWarningIcon);
+        rainWarningIcon = nullptr;
+    }
+    if (weatherOk && willRainSoon(lastWeather, 8)) {
+        rainWarningIcon = Icons::createRainWarning(weatherTile.btn, 28);
+        lv_obj_align(rainWarningIcon, LV_ALIGN_TOP_RIGHT, -4, 4);
+    }
 }
 
 void doFetch() {
@@ -74,7 +87,6 @@ String formatWeatherValue(const WeatherData &w) {
     if (!w.valid) return "Wetter n.a.";
     String s = String(w.current.temperature) + " C";
     s += "\n" + sanitizeGermanText(w.current.description);
-    if (willRainSoon(w, 8)) s += "\n[Regen moeglich]";
     return s;
 }
 
@@ -95,12 +107,13 @@ String formatCalendarPreview(const CalendarData &c) {
 
 void updateWidgets() {
     if (!widgetsBuilt) return;
-    tile_button_set_value(weatherTile, formatWeatherValue(lastWeather).c_str());
     rebuildWeatherIcon(lastWeather.current.symbol, lastWeather.current.description);
+    updateRainWarning();
+    tile_button_set_value(weatherTile, formatWeatherValue(lastWeather).c_str());
+    lv_obj_align(weatherTile.value, LV_ALIGN_CENTER, 0, 50);
     tile_button_set_value(calendarTile, formatCalendarPreview(lastCalendar).c_str());
     tile_button_set_icon(calendarTile, LV_SYMBOL_FILE);
-    tile_button_set_value(mvgTile, "");
-    tile_button_set_icon(mvgTile, LV_SYMBOL_LIST);
+    tile_button_set_value(mvgTile, "Abfahrten");
 }
 
 } // namespace
@@ -116,14 +129,20 @@ void homeScreen_create(Screen &s) {
     //  weather tile   x=12 y=12  w=296 h=170  (big, top)
     //  calendar tile  x=12 y=194 w=296 h=170  (big, middle, with 2-event preview)
     //  mvg tile       x=12 y=376 w=296 h=92   (small, bottom, no preview)
+    lv_color_t tileBg = Theme::bgCard();
+
     weatherTile  = tile_button_create(s.root, 12, 12,  296, 170,
-                                      Theme::accentWeather(), "Wetter",
+                                      tileBg, "Wetter",
                                       on_weather_tile, nullptr);
+    lv_obj_set_width(weatherTile.value, 260);
+    lv_obj_set_style_text_align(weatherTile.value, LV_TEXT_ALIGN_CENTER, 0);
+
     calendarTile = tile_button_create(s.root, 12, 194, 296, 170,
-                                      Theme::accentCalendar(), "Termine",
+                                      tileBg, "Termine",
                                       on_calendar_tile, nullptr);
+
     mvgTile      = tile_button_create(s.root, 12, 376, 296, 92,
-                                      Theme::accentMvg(), "MVG",
+                                      tileBg, "MVG",
                                       on_mvg_tile, nullptr);
     widgetsBuilt = true;
 }
