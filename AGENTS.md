@@ -35,8 +35,8 @@ WT32-SC01 Plus Dashboard f√ºr ESP32-S3 (3.5" kapazitiver Touch-IPS-Display, 320√
 # Build + Flash mit explizitem Port
 ./scripts/deploy.sh /dev/ttyUSB0
 
-# Nur Build (ohne Flash)
-pio run
+# Nur Build (ohne Flash) - Erfordert virtuelle Umgebung
+.venv-platformio/bin/pio run
 
 # Serieller Monitor
 pio device monitor

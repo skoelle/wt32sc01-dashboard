@@ -29,12 +29,12 @@ void buildList() {
     // Header row with column titles.
     lv_obj_t *header = lv_label_create(list);
     lv_label_set_text(header, "Icon  Uhrzeit  Grad  Text  Regen %");
-    lv_obj_set_style_text_font(header, &lv_font_montserrat_12, 0);
+    lv_obj_set_style_text_font(header, &lv_font_montserrat_14, 0);
     lv_obj_set_style_text_color(header, Theme::text(), 0);
 
     // Separator line below header.
     lv_obj_t *header_line = lv_line_create(list);
-    static lv_point_t header_points[] = {{0, 0}, {280, 0}};
+    static lv_point_precise_t header_points[] = {{0, 0}, {280, 0}};
     lv_line_set_points(header_line, header_points, 2);
     lv_obj_set_style_line_color(header_line, Theme::textDim(), 0);
     lv_obj_set_style_line_width(header_line, 1, 0);
