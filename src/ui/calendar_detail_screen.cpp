@@ -26,8 +26,8 @@ void buildList() {
         return;
     }
 
-    // Columns (content width = 280 - 2*6 pad = 268):
-    //   date   88 px left   | time 56 px centered @94 | summary 112 px @156
+    // Columns (content width = 280 - 2*6 pad = 268), side by side like a table:
+    //   date   72 px left (dim grey)  | time 56 px centered (grey) | summary (white, wraps)
     for (const auto &ev : lastCalendar.events) {
         lv_obj_t *row = lv_obj_create(list);
         lv_obj_set_size(row, 280, LV_SIZE_CONTENT);
@@ -38,10 +38,13 @@ void buildList() {
         lv_obj_set_style_pad_all(row, 6, 0);
         lv_obj_clear_flag(row, LV_OBJ_FLAG_SCROLLABLE);
 
+        // Shared base: ensure no default-black text leaks through to children.
+        lv_obj_set_style_text_color(row, Theme::text(), 0);
+
         lv_obj_t *date = lv_label_create(row);
         lv_label_set_text(date, DateUtils::formatDateDE(ev.startAt).c_str());
         lv_obj_set_style_text_color(date, Theme::textDim(), 0);
-        lv_obj_set_width(date, 88);
+        lv_obj_set_width(date, 72);
         lv_obj_align(date, LV_ALIGN_TOP_LEFT, 0, 0);
 
         lv_obj_t *time = lv_label_create(row);
@@ -49,14 +52,14 @@ void buildList() {
         lv_obj_set_style_text_color(time, Theme::accentCalendar(), 0);
         lv_obj_set_style_text_align(time, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_set_width(time, 56);
-        lv_obj_align(time, LV_ALIGN_TOP_LEFT, 94, 0);
+        lv_obj_align(time, LV_ALIGN_TOP_LEFT, 80, 0);
 
         lv_obj_t *sum = lv_label_create(row);
         lv_label_set_text(sum, sanitizeGermanText(ev.summary.substring(0, 30)).c_str());
         lv_obj_set_style_text_color(sum, Theme::text(), 0);
-        lv_label_set_long_mode(sum, LV_LABEL_LONG_MODE_DOTS);
-        lv_obj_set_width(sum, 112);
-        lv_obj_align(sum, LV_ALIGN_TOP_LEFT, 156, 0);
+        lv_label_set_long_mode(sum, LV_LABEL_LONG_MODE_WRAP);
+        lv_obj_set_width(sum, 124);
+        lv_obj_align(sum, LV_ALIGN_TOP_LEFT, 144, 0);
     }
 }
 
