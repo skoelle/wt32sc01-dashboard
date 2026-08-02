@@ -23,7 +23,7 @@ public:
         // 8-bit parallel i80/8080 bus (ESP32-S3 variant).
         {
             auto cfg = _bus_instance.config();
-            cfg.freq_write = 16000000;
+            cfg.freq_write = 20000000;
             cfg.freq_read  =  8000000;
             cfg.pin_wr = BoardPins::LCD_WR;
             cfg.pin_rd = BoardPins::LCD_RD;
