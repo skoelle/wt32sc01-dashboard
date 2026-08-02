@@ -39,26 +39,27 @@ void buildList() {
         lv_obj_clear_flag(row, LV_OBJ_FLAG_SCROLLABLE);
 
         // Shared base: ensure no default-black text leaks through to children.
-        lv_obj_set_style_text_color(row, Theme::text(), 0);
+        lv_obj_set_style_text_color(row, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
 
         lv_obj_t *date = lv_label_create(row);
         lv_label_set_text(date, DateUtils::formatDateDE(ev.startAt).c_str());
-        lv_obj_set_style_text_color(date, Theme::textDim(), 0);
+        lv_obj_set_style_text_color(date, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
         lv_obj_set_width(date, 72);
         lv_obj_align(date, LV_ALIGN_TOP_LEFT, 0, 0);
 
         lv_obj_t *time = lv_label_create(row);
         lv_label_set_text(time, DateUtils::formatTimeDE(ev.startAt, ev.allDay).c_str());
-        lv_obj_set_style_text_color(time, Theme::accentCalendar(), 0);
+        lv_obj_set_style_text_color(time, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
         lv_obj_set_style_text_align(time, LV_TEXT_ALIGN_CENTER, 0);
         lv_obj_set_width(time, 56);
         lv_obj_align(time, LV_ALIGN_TOP_LEFT, 80, 0);
 
         lv_obj_t *sum = lv_label_create(row);
         lv_label_set_text(sum, sanitizeGermanText(ev.summary.substring(0, 30)).c_str());
-        lv_obj_set_style_text_color(sum, Theme::text(), 0);
+        lv_obj_set_style_text_color(sum, lv_color_hex(0xFFFFFF), LV_PART_MAIN);
         lv_label_set_long_mode(sum, LV_LABEL_LONG_MODE_WRAP);
         lv_obj_set_width(sum, 124);
+        lv_obj_set_height(sum, LV_SIZE_CONTENT);
         lv_obj_align(sum, LV_ALIGN_TOP_LEFT, 144, 0);
     }
 }
