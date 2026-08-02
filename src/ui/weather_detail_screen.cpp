@@ -1,6 +1,7 @@
 #include "weather_detail_screen.h"
 #include "ui/widgets/back_button.h"
 #include "api/weather_api.h"
+#include "icons/icons.h"
 #include <theme.h>
 #include <text_utils.h>
 #include <lvgl.h>
@@ -61,7 +62,7 @@ void buildList() {
 
         // degree column
         lv_obj_t *temp_label = lv_label_create(row);
-        lv_label_set_text(temp_label, String(fe.temperature) + "C");
+        lv_label_set_text(temp_label, (String(fe.temperature) + "C").c_str());
         lv_obj_set_style_text_color(temp_label, Theme::text(), 0);
         lv_obj_align(temp_label, LV_ALIGN_TOP_LEFT, 160, 0);
 
