@@ -135,7 +135,7 @@ void display_init() {
 
     lv_init();
     lv_display_gfx = lv_display_create(Theme::SCREEN_W, Theme::SCREEN_H);
-    lv_display_set_color_format(lv_display_gfx, LV_COLOR_FORMAT_RGB565);
+    lv_display_set_color_format(lv_display_gfx, LV_COLOR_FORMAT_RGB565_SWAPPED);
     lv_display_set_buffers(lv_display_gfx, lvgl_buf1, lvgl_buf2,
                            sizeof(lv_color_t) * LVGL_BUF_PIXELS,
                            LV_DISPLAY_RENDER_MODE_PARTIAL);
