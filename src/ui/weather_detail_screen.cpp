@@ -53,6 +53,7 @@ void buildList() {
 
         // icon - use weather symbol
         lv_obj_t *icon = Icons::createWeatherIcon(row, fe.symbol, fe.description, 24);
+        lv_obj_align(icon, LV_ALIGN_TOP_LEFT, 10, 0);
 
         // time column
         lv_obj_t *time_label = lv_label_create(row);
@@ -75,7 +76,7 @@ void buildList() {
         }
         lv_obj_t *desc_label = lv_label_create(row);
         lv_label_set_text(desc_label, desc.c_str());
-        lv_obj_set_style_text_color(desc_label, Theme::textDim(), 0);
+        lv_obj_set_style_text_color(desc_label, fe.precipitationType == "rain" ? Theme::accentRain() : Theme::textDim(), 0);
         lv_obj_align(desc_label, LV_ALIGN_TOP_LEFT, 220, 0);
 
         // rain probability column - show percentage for rain
