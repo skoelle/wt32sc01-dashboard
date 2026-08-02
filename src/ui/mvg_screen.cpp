@@ -37,8 +37,11 @@ void buildList() {
         lv_obj_t *row = lv_obj_create(list);
         lv_obj_set_size(row, 280, LV_SIZE_CONTENT);
         lv_obj_set_style_bg_opa(row, LV_OPA_TRANSP, 0);
-        lv_obj_set_style_border_width(row, 0, 0);
+        lv_obj_set_style_border_width(row, 1, 0);
+        lv_obj_set_style_border_side(row, LV_BORDER_SIDE_BOTTOM, 0);
+        lv_obj_set_style_border_color(row, lv_color_hex(0x555555), 0);
         lv_obj_set_style_pad_all(row, 6, 0);
+        lv_obj_set_style_pad_bottom(row, 10, 0);
         lv_obj_clear_flag(row, LV_OBJ_FLAG_SCROLLABLE);
 
         // Zeile 1 links: Icon in Farbe, Linie in Weiß
@@ -99,6 +102,7 @@ void mvgScreen_create(Screen &s) {
     lv_obj_set_style_bg_opa(list, LV_OPA_COVER, 0);
     lv_obj_set_style_border_width(list, 0, 0);
     lv_obj_set_flex_flow(list, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_style_pad_row(list, 0, 0);
     lv_obj_add_flag(list, LV_OBJ_FLAG_SCROLLABLE);
     back_button_create(s.root, on_back, nullptr);
 }
