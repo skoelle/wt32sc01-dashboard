@@ -16,6 +16,14 @@ lv_obj_t *list = nullptr;
 unsigned long lastFetchMs = 0;
 const unsigned long REFRESH_INTERVAL_MS = 60UL * 1000UL;
 
+lv_color_t typeColor(const String &type) {
+    if (type == "UBAHN") return Theme::accentUBahn();
+    if (type == "SBAHN") return Theme::accentSBahn();
+    if (type == "BUS")   return Theme::accentBus();
+    if (type == "TRAM")  return Theme::accentTram();
+    return Theme::textDim();
+}
+
 void buildList() {
     if (!list) return;
     lv_obj_clean(list);
@@ -34,13 +42,12 @@ void buildList() {
         lv_obj_set_style_border_width(row, 0, 0);
         lv_obj_set_style_pad_all(row, 6, 0);
         lv_obj_clear_flag(row, LV_OBJ_FLAG_SCROLLABLE);
+        lv_obj_set_style_text_color(row, Theme::text(), 0);
 
-        // Line badge (colored text: U red, S green).
         String badge = String(dep.icon) + " " + dep.line;
         lv_obj_t *ln = lv_label_create(row);
         lv_label_set_text(ln, badge.c_str());
-        lv_obj_set_style_text_color(ln,
-            dep.type == "UBAHN" ? Theme::accentUBahn() : Theme::accentSBahn(), 0);
+        lv_obj_set_style_text_color(ln, typeColor(dep.type), 0);
         lv_obj_align(ln, LV_ALIGN_TOP_LEFT, 0, 0);
 
         String dest = sanitizeGermanText(dep.destination.substring(0, 20));
@@ -81,6 +88,7 @@ void mvgScreen_create(Screen &s) {
     lv_obj_set_size(list, 320, 480 - 80);
     lv_obj_set_style_bg_color(list, Theme::bg(), 0);
     lv_obj_set_style_border_width(list, 0, 0);
+    lv_obj_set_style_text_color(list, Theme::text(), 0);
     back_button_create(s.root, on_back, nullptr);
 }
 
