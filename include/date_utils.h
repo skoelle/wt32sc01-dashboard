@@ -74,7 +74,7 @@ inline String formatDateDE(const String &iso) {
 // Time-only column text, e.g. "14:00". Returns "-" for all-day events so the
 // table row keeps a consistent column structure.
 inline String formatTimeDE(const String &iso, bool allDay) {
-    if (allDay) return "-";
+    if (allDay) return "";
     ParsedDateTime p = parseIso(iso);
     if (!p.valid) return "";
     char buf[8];
