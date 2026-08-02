@@ -24,7 +24,8 @@ WT32-SC01 Plus Dashboard für ESP32-S3 (3.5" kapazitiver Touch-IPS-Display, 320�
 - `src/ui/mvg_screen.*` - MVG-Abfahrtsseite
 - `src/api/` - HTTP-Clients für Wetter, Kalender, MVG
 - `src/icons/` - Prozedurale LVGL-Canvas-Icons
-- `scripts/deploy.sh` - Build + Flash
+- `scripts/deploy.sh` / `deploy.cmd` - Build + Flash
+- `scripts/build.sh` / `build.cmd` - Nur Build
 
 ## Build & Deploy
 
@@ -67,8 +68,8 @@ pio device monitor
 │   ├── api/                    # HTTP-Clients (1:1 aus m5stack-dashboard)
 │   └── icons/                  # prozedurale LVGL-Canvas-Icons
 ├── scripts/
-│   ├── deploy.sh               # Build + Flash
-│   └── build.sh                # Nur Build
+│   ├── deploy.sh / deploy.cmd  # Build + Flash
+│   └── build.sh / build.cmd    # Nur Build
 └── docs/                       # Migrationshistorie (SPEC-old, PLAN, TODO)
 ```
 
@@ -84,10 +85,10 @@ Navigation erfolgt über `navigate(ScreenId)` Funktion in `main.cpp`.
 
 ## API-Endpunkte
 
-Alle APIs liefern JSON per HTTP GET:
-- Wetter: `http://docker-host-pve.fritz.box:3088/api/weather`
-- Kalender: `http://docker-host-pve.fritz.box:8077/api/events`
-- MVG: `http://docker-host-pve.fritz.box:8078/api/departures`
+Alle APIs liefern JSON per HTTP GET (URLs in `include/secrets.h` konfigurierbar):
+- Wetter: `/api/weather`
+- Kalender: `/api/events`
+- MVG: `/api/departures`
 
 ## Refresh-Intervalle
 
