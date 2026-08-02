@@ -95,10 +95,14 @@ void mvgScreen_refresh(Screen &) {
     buildList();
 }
 
-void mvgScreen_tick(Screen &) {
+void mvgScreen_tick(Screen &s) {
     if (lastFetchMs == 0 || millis() - lastFetchMs >= REFRESH_INTERVAL_MS) {
+        s.showLoading(true);
+        lv_timer_handler();
         doFetch();
         buildList();
+        s.showLoading(false);
+        lv_timer_handler();
     }
 }
 
