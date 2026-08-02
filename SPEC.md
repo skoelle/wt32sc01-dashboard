@@ -39,20 +39,20 @@ Identisch zum M5Stack-Projekt, gleiche Backend-Services im lokalen Netz, JSON pe
 
 ### 4.1 Wetter-API
 
-- **Endpoint**: `http://docker-host-pve.fritz.box:3088/api/weather`
+- **Endpoint**: `/api/weather` (konfigurierbar in `include/secrets.h`)
 - Liefert `current` (aktuelles Wetter: `temperature`, `symbol`, `description`, `emoji`) und `forecast` (stündliche Vorhersage inkl. `precipitation.probability` und `precipitation.type`)
 - `symbol` (z.B. `mo____`, `mb____`, `wb____`) ist Basis für die Icon-Auswahl
 
 ### 4.2 Kalender-API
 
-- **Endpoint**: `http://docker-host-pve.fritz.box:8077/api/events`
+- **Endpoint**: `/api/events` (konfigurierbar in `include/secrets.h`)
 - Liefert die nächsten 10 Termine, serverseitig chronologisch sortiert (`summary`, `start_at`, `end_at`, `all_day`, `status`, u.a.)
 - Für den Home-Screen werden die ersten 2 Einträge verwendet, für die Detailseite alle 10
 - `all_day`-Termine werden anders dargestellt (nur Datum statt Uhrzeit); Zeiten werden unverändert übernommen
 
 ### 4.3 MVG-Abfahrten-API
 
-- **Endpoint**: `http://docker-host-pve.fritz.box:8078/api/departures`
+- **Endpoint**: `/api/departures` (konfigurierbar in `include/secrets.h`)
 - Liefert eine ungefilterte Liste aller Abfahrten (beide Stationen, U-Bahn/S-Bahn gemischt, Reihenfolge wie geliefert): `station`, `type`, `icon`, `line`, `destination`, `time_str`, `delay_min`, `cancelled`, `messages`
 - `time_str` wird direkt übernommen, keine eigene Zeitberechnung
 
@@ -85,8 +85,7 @@ Refresh: alle 10 Minuten (Wetter + Kalender neu abrufen)
 
 - Liste aller Abfahrten aus `departures`, ohne Filterung nach Station oder Linie, als vertikal scrollbare Liste (Linie, Ziel, Zeit, Verspätung, ggf. Ausfall-Hinweis)
 - **Zurück-Button unten links** → zurück zur Hauptseite
-
-Refresh: jede Minute
+- Kein Background-Refresh (nur beim Betreten der Seite und via tick() alle 60 Sekunden)
 
 ## 6. Navigation (Touch)
 
@@ -107,24 +106,23 @@ Gleiches Grundprinzip wie beim M5Stack (hochwertig, farbig, dunkles Farbschema),
 
 - **Farbschema "iPhone Dark Mode"-Look**: Sehr dunkles Schwarz (`#000000`/`#0B0B0D`) als Hintergrund, weißer/heller Text (`#FFFFFF`/`#F2F2F7`) als Basis. Jede Home-Kachel bekommt einen eigenen, dezenten Akzentton als Kachel-Hintergrund (z.B. gedämpftes Blau für Wetter, eigene Akzentfarbe für Kalender, an MVV-Linienfarben angelehnte Töne für MVG), ähnlich den farbigen Funktionskacheln im Referenzbild, aber ruhiger/dunkler
 - **Größere, touch-taugliche Kacheln**: Mindestgröße der Home-Kacheln so bemessen, dass sie bequem mit dem Finger treffbar sind (Richtwert ≥ 80–100 px Höhe bei 320 px Breite); Zurück-Button ebenfalls als große, gut treffbare Fläche unten links
-- **Eigene farbige Bitmap-Icons** statt Unicode-Emojis, als eingebettete RGB565-Bitmaps im Code (kein Nachladen von SD-Karte), Icon-Set: Sonne/klar, bewölkt, Regen, Nacht-Varianten (Basis: `symbol`-Feld), U-Bahn-Symbol, S-Bahn-Symbol, Kalender-Symbol, Regen-Hinweis-Symbol, Zurück-Pfeil, Retry-/Fehler-Symbol
+- **Eigene prozedurale Icons** als LVGL-Canvas-Objekte (keine externen Bitmap-Dateien), Icon-Set: Sonne/klar, bewölkt, Regen, Nacht-Varianten (Basis: `symbol`-Feld), U-Bahn-Symbol, S-Bahn-Symbol, Kalender-Symbol, Regen-Hinweis-Symbol, Zurück-Pfeil, Retry-/Fehler-Symbol
 - **Layout-Prinzipien**: Klare visuelle Hierarchie (große Temperatur/Uhrzeit, kleinere Nebeninfos), hoher Kontrast schwarz/weiß als Basis, großzügiger als beim M5Stack dank 3.5"-Display und Portrait-Ausrichtung, dezente Akzentfarben statt vieler bunter Flächen
 - **Typografie**: Deutlich größere, gut lesbare Schriftgrößen als beim M5Stack (mehr Platz vorhanden), wichtige Werte (Temperatur, Abfahrtszeit) groß und fett gegenüber Nebeninfos
 
 ## 8. Fehlerbehandlung
 
-- Bei nicht erreichbarer API: Einfache Fehleranzeige auf dem betroffenen Screen bzw. der betroffenen Kachel (Retry-Icon + kurzer Text wie "Keine Verbindung")
+- Bei nicht erreichbarer API: Fehleranzeige auf dem betroffenen Screen bzw. der betroffenen Kachel (Retry-Icon + kurzer Text wie "Keine Verbindung"). Letzte gültige Daten bleiben erhalten (außer bei MVG: nur aktuelle Daten, da kein Background-Refresh)
 - **Retry-Auslöser**: Automatisch beim nächsten regulären Refresh-Intervall, zusätzlich manuell durch erneuten Tap auf die betroffene Kachel bzw. durch Zurück- und wieder-Reinnavigieren in den Screen
-- Kein Vorhalten "letzter bekannter Werte" über den Fehlerzustand hinaus gefordert
 
 ## 9. Refresh-Intervalle
 
-| Seite/Datenquelle | Intervall |
-|---|---|
-| Hauptseite (Wetter + Kalender) | 10 Minuten |
-| MVG-Abfahrtsseite | 1 Minute |
-| Wetter-Detailseite | folgt Hauptseiten-Intervall (10 Minuten), da gleiche Datenquelle |
-| Kalender-Detailseite | folgt Hauptseiten-Intervall (10 Minuten), da gleiche Datenquelle |
+| Seite/Datenquelle | Intervall | Background-Refresh |
+|---|---|---|
+| Hauptseite (Wetter + Kalender) | 10 Minuten | Ja (data_manager) |
+| MVG-Abfahrtsseite | 1 Minute | Nein (nur tick()) |
+| Wetter-Detailseite | folgt Hauptseiten-Intervall (10 Minuten), da gleiche Datenquelle | Ja (data_manager) |
+| Kalender-Detailseite | folgt Hauptseiten-Intervall (10 Minuten), da gleiche Datenquelle | Ja (data_manager) |
 
 ## 10. Projektstruktur (PlatformIO, neues Repository)
 
@@ -138,15 +136,19 @@ Eigenständiges, neues Git-Repository (z.B. `wt32sc01-dashboard`), von Anfang an
 ├── include/
 │   ├── secrets.h.example     (Platzhalter für WLAN)
 │   ├── secrets.h             (lokal, nicht eingecheckt)
-│   └── board_pins.h          (Display-/Touch-Pinbelegung für WT32-SC01 Plus)
+│   ├── board_pins.h          (Display-/Touch-Pinbelegung für WT32-SC01 Plus)
+│   ├── theme.h               (Dark-Mode-Farbschema)
+│   ├── text_utils.h          (UTF-8->ASCII-Transliteration)
+│   └── date_utils.h          (Datumsformatierung ohne NTP)
 ├── src/
 │   ├── main.cpp
 │   ├── display/              (LovyanGFX-Setup, Rotation/Portrait-Konfiguration)
 │   ├── ui/                   (LVGL-Screens: Home, WeatherDetail, CalendarDetail, MVG; Kachel-/Button-Widgets)
 │   ├── api/                  (HTTP-Clients für Weather, Calendar, MVG – eigenständig implementiert)
-│   └── icons/                (farbige Bitmap-Icon-Definitionen, RGB565)
+│   └── icons/                (prozedurale LVGL-Canvas-Icons)
 ├── scripts/
-│   └── deploy.sh              (Build + Flash via PlatformIO CLI, kein Monitor)
+│   ├── deploy.sh / deploy.cmd  (Build + Flash via PlatformIO CLI, kein Monitor)
+│   └── build.sh / build.cmd    (Nur Build)
 └── README.md                  (verweist als Referenz auf https://github.com/skoelle/m5stack-dashboard)
 ```
 
