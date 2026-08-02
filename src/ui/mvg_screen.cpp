@@ -40,19 +40,21 @@ void buildList() {
         lv_obj_set_style_border_width(row, 1, 0);
         lv_obj_set_style_border_side(row, LV_BORDER_SIDE_BOTTOM, 0);
         lv_obj_set_style_border_color(row, lv_color_hex(0x555555), 0);
-        lv_obj_set_style_pad_all(row, 6, 0);
-        lv_obj_set_style_pad_bottom(row, 10, 0);
+        lv_obj_set_style_pad_all(row, 8, 0);
+        lv_obj_set_style_pad_bottom(row, 12, 0);
         lv_obj_clear_flag(row, LV_OBJ_FLAG_SCROLLABLE);
 
         // Zeile 1 links: Icon in Farbe, Linie in Weiß
         lv_obj_t *icon = lv_label_create(row);
         lv_label_set_text(icon, dep.icon.c_str());
         lv_obj_set_style_text_color(icon, typeColor(dep.type), 0);
+        lv_obj_set_style_text_font(icon, &lv_font_montserrat_24, 0);
         lv_obj_align(icon, LV_ALIGN_TOP_LEFT, 0, 0);
 
         lv_obj_t *ln = lv_label_create(row);
         lv_label_set_text(ln, dep.line.c_str());
         lv_obj_set_style_text_color(ln, Theme::text(), 0);
+        lv_obj_set_style_text_font(ln, &lv_font_montserrat_24, 0);
         lv_obj_align_to(ln, icon, LV_ALIGN_OUT_RIGHT_MID, 4, 0);
 
         // Zeile 1 rechts: Zeit + Verspätung
@@ -60,17 +62,20 @@ void buildList() {
             lv_obj_t *t = lv_label_create(row);
             lv_label_set_text(t, "Ausfall");
             lv_obj_set_style_text_color(t, Theme::accentError(), 0);
+            lv_obj_set_style_text_font(t, &lv_font_montserrat_24, 0);
             lv_obj_align(t, LV_ALIGN_TOP_RIGHT, 0, 0);
         } else {
             lv_obj_t *t = lv_label_create(row);
             lv_label_set_text(t, dep.timeStr.c_str());
             lv_obj_set_style_text_color(t, Theme::text(), 0);
-            lv_obj_align(t, LV_ALIGN_TOP_RIGHT, -36, 0);
+            lv_obj_set_style_text_font(t, &lv_font_montserrat_24, 0);
+            lv_obj_align(t, LV_ALIGN_TOP_RIGHT, -40, 0);
 
             if (dep.delayMin > 0) {
                 lv_obj_t *delay = lv_label_create(row);
                 lv_label_set_text(delay, ("+" + String(dep.delayMin)).c_str());
                 lv_obj_set_style_text_color(delay, Theme::accentError(), 0);
+                lv_obj_set_style_text_font(delay, &lv_font_montserrat_24, 0);
                 lv_obj_align_to(delay, t, LV_ALIGN_OUT_RIGHT_MID, 2, 0);
             }
         }
@@ -79,7 +84,8 @@ void buildList() {
         String dest = sanitizeGermanText(dep.destination.substring(0, 20));
         lv_obj_t *d = lv_label_create(row);
         lv_label_set_text(d, dest.c_str());
-        lv_obj_align(d, LV_ALIGN_TOP_LEFT, 0, 20);
+        lv_obj_set_style_text_font(d, &lv_font_montserrat_20, 0);
+        lv_obj_align(d, LV_ALIGN_TOP_LEFT, 0, 28);
     }
 }
 
