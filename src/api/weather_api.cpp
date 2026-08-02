@@ -28,17 +28,7 @@ WeatherData fetchWeather() {
         fe.precipitationType = precip["type"] | "";
         data.forecast.push_back(fe);
     }
+    data.willRainSoon = doc["willRainSoon"] | false;
     data.valid = true;
     return data;
-}
-
-bool willRainSoon(const WeatherData &data, int hours) {
-    if (!data.valid) return false;
-    int checked = 0;
-    for (const auto &entry : data.forecast) {
-        if (checked >= hours) break;
-        if (entry.precipitationType == "rain" && entry.precipitationProbability > 0.0f) return true;
-        checked++;
-    }
-    return false;
 }

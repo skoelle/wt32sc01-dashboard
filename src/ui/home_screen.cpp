@@ -35,7 +35,7 @@ void updateRainWarning(const WeatherData &w, bool ok) {
         lv_obj_del(rainWarningIcon);
         rainWarningIcon = nullptr;
     }
-    if (ok && willRainSoon(w, 8)) {
+    if (ok && w.willRainSoon) {
         rainWarningIcon = Icons::createRainWarning(weatherTile.btn, 28);
         lv_obj_align(rainWarningIcon, LV_ALIGN_TOP_RIGHT, -4, 4);
     }

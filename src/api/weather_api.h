@@ -19,9 +19,9 @@ struct ForecastEntry {
 
 struct WeatherData {
     bool valid = false;
+    bool willRainSoon = false;
     WeatherCurrent current;
     std::vector<ForecastEntry> forecast;
 };
 
 WeatherData fetchWeather();
-bool willRainSoon(const WeatherData &data, int hours = 8);
