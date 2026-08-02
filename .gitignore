@@ -1,0 +1,7 @@
+.pio/
+.vscode/
+include/secrets.h
+*.o
+*.bin
+
+.venv-platformio/
