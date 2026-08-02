@@ -19,8 +19,6 @@ const unsigned long REFRESH_INTERVAL_MS = 60UL * 1000UL;
 lv_color_t typeColor(const String &type) {
     if (type == "UBAHN") return Theme::accentUBahn();
     if (type == "SBAHN") return Theme::accentSBahn();
-    if (type == "BUS")   return Theme::accentBus();
-    if (type == "TRAM")  return Theme::accentTram();
     return Theme::textDim();
 }
 

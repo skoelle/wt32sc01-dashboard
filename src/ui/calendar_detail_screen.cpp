@@ -54,7 +54,7 @@ void buildList() {
         lv_obj_t *sum = lv_label_create(row);
         lv_label_set_text(sum, sanitizeGermanText(ev.summary.substring(0, 30)).c_str());
         lv_obj_set_style_text_color(sum, Theme::text(), 0);
-        lv_label_set_long_mode(sum, LV_TEXT_LONG_DOT);
+        lv_label_set_long_mode(sum, LV_LABEL_LONG_MODE_DOTS);
         lv_obj_set_width(sum, 112);
         lv_obj_align(sum, LV_ALIGN_TOP_LEFT, 156, 0);
     }

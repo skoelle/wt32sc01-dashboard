@@ -31,8 +31,6 @@ inline lv_color_t accentSun()      { return lv_color_hex(0xFBC02D); }
 inline lv_color_t accentRain()     { return lv_color_hex(0x4FC3F7); }
 inline lv_color_t accentUBahn()    { return lv_color_hex(0x0079F6); } // MVG U-Bahn blue
 inline lv_color_t accentSBahn()    { return lv_color_hex(0x0CB87E); } // MVG S-Bahn green
-inline lv_color_t accentBus()      { return lv_color_hex(0xF57C00); } // MVG Bus orange
-inline lv_color_t accentTram()     { return lv_color_hex(0xE040FB); } // MVG Tram magenta
 inline lv_color_t accentWarn()     { return lv_color_hex(0xFFB300); }
 inline lv_color_t accentError()    { return lv_color_hex(0xF44336); }
 inline lv_color_t accentStorm()    { return lv_color_hex(0xFFD54F); }
