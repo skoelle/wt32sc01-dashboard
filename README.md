@@ -82,11 +82,11 @@ pio device monitor
 
 Nach 5 Minuten ohne Touch-Eingabe springt das Gerät automatisch zurück
 zur Hauptseite. Die Hauptseite aktualisiert sich alle 10 Minuten, die
-MVG-Seite jede Minute.
+MVG-Seite jede Minute (nur beim Betreten der Seite, kein Background-Refresh).
 
 ## Fehlerbehandlung
 
-Wenn eine API nicht erreichbar ist, wird auf der betroffenen Kachel bzw. dem Screen eine Fehleranzeige gezeigt (Text + ggf. Retry-Icon). Es wird kein "letzter bekannter Wert" angezeigt.
+Wenn eine API nicht erreichbar ist, werden die letzten gültigen Daten weiterhin angezeigt (außer bei MVG-Abfahrten, wo nur beim aktuellen Aufruf geladen wird), zusätzlich wird auf der betroffenen Kachel bzw. dem Screen eine Fehleranzeige gezeigt (Text + ggf. Retry-Icon).
 
 **Retry:**
 - Automatisch beim nächsten regulären Refresh-Intervall (10 Min. bzw. 1 Min.)

@@ -92,11 +92,11 @@ Alle APIs liefern JSON per HTTP GET (URLs in `include/secrets.h` konfigurierbar)
 
 ## Refresh-Intervalle
 
-| Seite | Intervall |
-|-------|-----------|
-| Hauptseite (Wetter + Kalender) | 10 Minuten |
-| MVG-Abfahrtsseite | 1 Minute |
-| Detailseiten | Folgen Hauptseiten-Intervall |
+| Seite | Intervall | Background-Refresh |
+|-------|-----------|-------------------|
+| Hauptseite (Wetter + Kalender) | 10 Minuten | Ja (data_manager) |
+| MVG-Abfahrtsseite | 1 Minute | Nein (nur tick()) |
+| Detailseiten | Folgen Hauptseiten-Intervall | Ja (data_manager) |
 
 ## Coding-Konventionen
 
@@ -112,7 +112,7 @@ Alle APIs liefern JSON per HTTP GET (URLs in `include/secrets.h` konfigurierbar)
 
 ## Fehlerbehandlung
 
-- Bei nicht erreichbarer API: Fehleranzeige auf Screen/Kachel
+- Bei nicht erreichbarer API: Fehleranzeige auf Screen/Kachel, letzte gültige Daten bleiben erhalten (außer MVG: nur aktuelle Daten, kein Background-Refresh)
 - Retry automatisch beim nächsten Refresh-Intervall
 - Manueller Retry durch erneutes Antippen der Kachel
 - Kein "letzter bekannter Wert" über Fehlerzustand hinaus
