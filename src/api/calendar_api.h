@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Stefan Koelle - https://stefankoelle.de - MIT License
 #pragma once
 #include <Arduino.h>
 #include <vector>

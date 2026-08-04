@@ -135,3 +135,7 @@ Icons werden prozedural als LVGL-Canvas-Objekte gezeichnet (keine externen Bitma
 ## Referenzprojekt
 
 Vorgängerprojekt mit M5Stack Core: <https://github.com/skoelle/m5stack-dashboard>
+
+## Lizenz
+
+Dieses Projekt steht unter der [MIT-Lizenz](LICENSE).

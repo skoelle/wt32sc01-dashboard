@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Stefan Koelle - https://stefankoelle.de - MIT License
 #include "tile_button.h"
 
 TileButton tile_button_create(lv_obj_t *parent, lv_coord_t x, lv_coord_t y,

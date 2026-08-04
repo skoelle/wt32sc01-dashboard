@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Stefan Koelle - https://stefankoelle.de - MIT License
 /**
  * @file lv_conf.h
  * Configuration file for v9.5.0

@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Stefan Koelle - https://stefankoelle.de - MIT License
 #include "http_client.h"
 #include <HTTPClient.h>
 #include <WiFi.h>

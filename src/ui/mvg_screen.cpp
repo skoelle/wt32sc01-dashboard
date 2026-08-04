@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Stefan Koelle - https://stefankoelle.de - MIT License
 #include "mvg_screen.h"
 #include "ui/widgets/back_button.h"
 #include "api/departures_api.h"

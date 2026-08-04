@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Stefan Koelle - https://stefankoelle.de - MIT License
 #include "display_setup.h"
 #include <LovyanGFX.hpp>
 #include <driver/i2c.h>

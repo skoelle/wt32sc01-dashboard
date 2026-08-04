@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Stefan Koelle - https://stefankoelle.de - MIT License
 #include "data_manager.h"
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>

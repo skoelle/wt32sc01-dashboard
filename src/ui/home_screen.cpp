@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Stefan Koelle - https://stefankoelle.de - MIT License
 #include "home_screen.h"
 #include "ui/widgets/tile_button.h"
 #include "icons/icons.h"

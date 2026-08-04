@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Stefan Koelle - https://stefankoelle.de - MIT License
 #pragma once
 
 // WT32-SC01 Plus pin assignments (ESP32-S3, ST7796 8-bit parallel, FT6336U touch).

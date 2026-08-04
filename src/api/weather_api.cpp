@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Stefan Koelle - https://stefankoelle.de - MIT License
 #include "weather_api.h"
 #include "http_client.h"
 #include <secrets.h>

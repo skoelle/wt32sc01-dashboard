@@ -1,3 +1,4 @@
+// Copyright (c) 2026 Stefan Koelle - https://stefankoelle.de - MIT License
 #include "calendar_detail_screen.h"
 #include "ui/widgets/back_button.h"
 #include "data/data_manager.h"
