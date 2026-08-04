@@ -121,3 +121,8 @@ Alle APIs liefern JSON per HTTP GET (URLs in `include/secrets.h` konfigurierbar)
 
 Vorgängerprojekt mit M5Stack Core: <https://github.com/skoelle/m5stack-dashboard>
 (Funktionalität übernommen, komplett neu geschrieben für WT32-SC01 Plus)
+
+## Lizenz
+
+MIT-Lizenz, hinterlegt in `LICENSE` und `README.md`.
+Copyright-Header in allen Quelldateien (`.h`, `.cpp`): `// Copyright (c) 2026 Stefan Koelle - https://stefankoelle.de - MIT License`
